@@ -1,8 +1,7 @@
 import express from 'express';
-import { metacall_inspect, metacall } from 'metacall';
+import { metacall, metacall_inspect } from 'metacall';
 
 const app = express();
-
 app.use(express.json());
 
 app.get('/inspect', (req, res) => {
@@ -34,6 +33,6 @@ app.post('/call/:name', (req, res) => {
 	res.send(JSON.stringify(metacall(req.params.name, ...req.body)));
 });
 
-app.listen(9000, () => {
+app.listen(5000, () => {
 	console.log('Server listening...');
 });
