@@ -1,6 +1,8 @@
 import * as cp from 'child_process';
 import fetch from 'cross-fetch';
-import * as decompress from 'decompress';
+import decompress from 'decompress';
+import { metacall_load_from_file_export } from 'metacall';
+import * as path from 'path';
 import * as util from 'util';
 import type { HandlerManifest, LANGUAGE_TYPE } from './manifest';
 
@@ -37,6 +39,15 @@ export abstract class LanguageHandler {
 		this.filedir = `./handlers/${this.config.manifest.endpoint}`;
 		this.ensureRequiredToolsAvailable();
 		this.extractManifestSource();
+		this.installDependencies();
+		this.loadEntrypointFileWithMetacall();
+	}
+
+	get entrypointFile() {
+		return path.join(
+			this.filedir,
+			this.config.manifest.source_archive.entrypoint_file
+		);
 	}
 
 	/**
@@ -53,9 +64,14 @@ export abstract class LanguageHandler {
 		console.log('Decompressed source:', decompressed);
 	}
 
+	loadEntrypointFileWithMetacall() {
+		metacall_load_from_file_export(this.config.language, [
+			this.entrypointFile
+		]);
+	}
+
 	/** Checks that binaries required to run the program and install dependencies are available in PATH */
 	ensureRequiredToolsAvailable() {
-		console.log(this);
 		const availableTools = this.config.requirements.map(exists);
 
 		if (availableTools.some(it => it == false)) {
